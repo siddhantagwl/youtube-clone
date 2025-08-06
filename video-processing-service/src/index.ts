@@ -1,5 +1,14 @@
 import express from "express";
-import ffmpeg from "fluent-ffmpeg";
+import { setupDirectories,
+    convertVideo,
+    downloadRawVideo,
+    uploadProcessedVideo,
+    deleteRawVideo,
+    deleteProcessedVideo,
+} from "./storage";
+
+
+setupDirectories();
 
 const app = express();
 app.use(express.json()); // this is important to parse JSON request bodies. express as middleware
@@ -9,30 +18,54 @@ app.use(express.json()); // this is important to parse JSON request bodies. expr
 //     res.send("Video Processing Service is running...");
 // });
 
-app.post("/process-video", (req, res) => {
-    // Placeholder for video processing logic
-    console.log("Video processing started...");
+app.post("/process-video", async (req, res) => {
 
-    const inputFilePath = req.body.inputFilePath;
-    const outputFilePath = req.body.outputFilePath;
-
-    // Validate input and output file paths , if not send client error 400
-    if (!inputFilePath || !outputFilePath) {
-        return res.status(400).send("Bad request: Missing input and output file paths.");
+    // this end point will be invoked by the cloud pub/sub message (msg queue)
+    let data;
+    try {
+        const message = Buffer.from(req.body.message.data, 'base64').toString('utf-8');
+        data = JSON.parse(message);
+        if (!data.name) { //.name gives the name of the file
+            throw new Error("Invalid message payload");
+        }
+    } catch (error) {
+        console.error("Error processing message:", error);
+        return res.status(400).send("Bad request: missing filename");
     }
 
-    // create a new ffmpeg command to process the video
-    ffmpeg(inputFilePath)
-        .outputOptions('-vf', 'scale=-1:360') // resize to 360p
-        .on("end", () => {
-            console.log("Video processing finished successfully!!");
-            res.status(200).send("Video processing finished successfully!!");
-        })
-        .on("error", (err) => {
-            console.error("Error processing video:", err.message);
-            res.status(500).send("Error processing video: " + err.message);
-        })
-        .save(outputFilePath);
+    // If we reach this point, it means the message was valid
+    console.log("Video processing started...");
+    const inputFilename = data.name;
+    const outputFilename = `processed-${inputFilename}`;
+
+    // download the raw video from the cloud storage
+    await downloadRawVideo(inputFilename);
+
+    // convert the video using ffmpeg
+    try {
+        await convertVideo(inputFilename, outputFilename); // await for the video to be processed before proceeding to upload hte video
+    } catch (error) {
+        // clean up if conversion fails
+        // both the functions can be await in parallel using promise.all
+        await Promise.all([
+            deleteRawVideo(inputFilename),
+            deleteProcessedVideo(outputFilename)
+        ]);
+        console.error("Error converting video:", error);
+        return res.status(500).send("Internal server error: video conversion failed");
+    }
+
+    // upload the processed video to cloud storage
+    await uploadProcessedVideo(outputFilename);
+
+    // once the video is uploaded, delete the local files
+    await Promise.all([
+        deleteRawVideo(inputFilename),
+        deleteProcessedVideo(outputFilename)
+    ]);
+
+    return res.status(200).send(`Video processed and uploaded successfully: ${outputFilename}`);
+
 });
 
 

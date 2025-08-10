@@ -5,12 +5,8 @@ export default function Home() {
   return (
     <div className={styles.page}>
       <main className={styles.main}>
-        <ol>
-          <li>
-            Get started by editing <code>app/page.tsx</code>.
-          </li>
-          <li>Save and see your changes instantly.</li>
-        </ol>
+        <h1>Welcome to the Home Page</h1>
+        <p>This is where the main content will be displayed.</p>
       </main>
     </div>
   );

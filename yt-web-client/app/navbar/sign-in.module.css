@@ -1,5 +1,7 @@
 .signin {
-  display: inline-block;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
   border: 1px solid gray;
   color: #065fd4;
   padding: 10px 20px;

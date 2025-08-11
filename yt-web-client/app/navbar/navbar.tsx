@@ -8,6 +8,8 @@ import { onAuthStateChangedHelper } from "../firebase/filebase";
 import { useEffect, useState } from "react";
 import { User } from "firebase/auth";
 
+import Upload from "./upload";
+
 export default function Navbar() {
 
   // inint user state
@@ -27,8 +29,11 @@ export default function Navbar() {
     <nav className={styles.nav}>
       <Link href="/">
           <Image src="/youtube-logo.svg" alt="YT Logo" width={90} height={20} />
-          <SignIn user={user} />
       </Link>
+      {
+        user && <Upload />
+      }
+      <SignIn user={user} />
     </nav>
   );
 }

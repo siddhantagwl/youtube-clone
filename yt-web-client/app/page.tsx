@@ -1,13 +1,23 @@
-
+// server side component
+import Link from "next/link";
+import Image from "next/image";
+import { getVideos } from "./firebase/functions";
 import styles from "./page.module.css";
 
-export default function Home() {
+export default async function Home() {
+  const videos = await getVideos();
+  console.log("Videos on home page:", videos);
+
   return (
-    <div className={styles.page}>
-      <main className={styles.main}>
-        <h1>Welcome to the Home Page</h1>
-        <p>This is where the main content will be displayed.</p>
-      </main>
-    </div>
+    <main>
+      {
+        videos.map((video) => (
+          <Link key={video.id || video.filename} href={`/watch?v=${video.filename}`}>
+            <Image src={"/thumbnail.png"} alt="thumbnail" width={200}
+             height={100} className={styles.thumbnail} />
+          </Link>
+        ))
+      }
+    </main>
   );
 }

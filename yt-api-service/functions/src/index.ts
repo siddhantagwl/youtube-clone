@@ -16,6 +16,17 @@ const dbFirestore = new Firestore();
 const storage = new Storage(); // Initialize Google Cloud Storage client
 const rawVideoBucketName = "yt-clone-raw-uploads"; // have to be globally unique
 
+const videoCollectionId = "videos";
+export interface Video {
+  id?: string;
+  uid?: string;
+  filename?: string;
+  status?: "processing" | "processed";
+  title?: string;
+  description?: string;
+  createdAt?: FirebaseFirestore.Timestamp;
+}
+
 // gen 1 function
 export const createUser = functions.auth.user().onCreate(async (user) => {
   // Check if user exists
@@ -60,4 +71,16 @@ export const generateUploadUrl = onCall({maxInstances: 1}, async (request) => {
   });
 
   return {url, fileName};
+});
+
+
+export const getVideos = onCall({maxInstances: 1}, async () => {
+  // we didnt check for user login, as videos are public and any one can
+  // watch them.
+  // return first 10 videso for simplicity
+  const snapshot = await dbFirestore.collection(videoCollectionId)
+    .limit(10)
+    .get();
+
+  return snapshot.docs.map((doc) => doc.data());
 });

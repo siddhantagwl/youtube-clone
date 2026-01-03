@@ -4,7 +4,7 @@ import Image from "next/image";
 import Link from "next/link";
 import styles from "./navbar.module.css"; // Importing CSS module for styling
 import SignIn from "./sign-in";
-import { onAuthStateChangedHelper } from "../firebase/filebase";
+import { onAuthStateChangedHelper } from "../firebase/firebase";
 import { useEffect, useState } from "react";
 import { User } from "firebase/auth";
 

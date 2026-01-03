@@ -22,7 +22,7 @@ export function setupDirectories() {
     ensureDirectoriesExist(localProcessedVideoDir);
 }
 
-export function convertVideo(rawVideoName:string, processedVideoName:string) {
+export function convertVideo(rawVideoName:string, processedVideoName:string): Promise<string> {
     // return a promise that resolves when the video processing is complete so that the server can respond to the client
     return new Promise((resolve, reject) => {
         // create a new ffmpeg command to process the video
@@ -40,7 +40,7 @@ export function convertVideo(rawVideoName:string, processedVideoName:string) {
     });
 }
 
-export async function downloadRawVideo(fileName: string) {
+export async function downloadRawVideo(fileName: string): Promise<void> {
     await storage.bucket(rawVideoBucketName).file(fileName)
     .download({
         destination: `${localRawVideoDir}/${fileName}`
@@ -51,7 +51,7 @@ export async function downloadRawVideo(fileName: string) {
     );
 }
 
-export async function uploadProcessedVideo(fileName: string) {
+export async function uploadProcessedVideo(fileName: string): Promise<void> {
     const bucket = storage.bucket(processedVideoBucketName)
     await bucket.upload(`${localProcessedVideoDir}/${fileName}`, {
         destination: fileName

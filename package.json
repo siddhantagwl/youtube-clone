@@ -1,0 +1,13 @@
+{
+  "name": "youtube-clone-workspace",
+  "private": true,
+  "workspaces": [
+    "packages/*",
+    "yt-web-client",
+    "yt-api-service/functions",
+    "video-processing-service"
+  ],
+  "overrides": {
+    "js-yaml": "4.1.1"
+  }
+}

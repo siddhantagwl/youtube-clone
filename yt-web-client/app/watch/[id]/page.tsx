@@ -75,20 +75,18 @@ export default async function WatchPage(
                   </div>
                 </div>
               ) : (
-                <div className={`${styles.playerOverlay} ${styles.processingOverlay}`}>
-                  <div className={styles.skeleton}>
-                    <div className={styles.shimmer} />
+                <>
+                  <meta httpEquiv="refresh" content="3" />
+                  <div className={`${styles.playerOverlay} ${styles.processingOverlay}`}>
+                    <div className={styles.skeleton}>
+                      <div className={styles.shimmer} />
+                    </div>
+                    <div className={styles.overlayTitle}>Processing</div>
+                    <div className={styles.overlayText}>
+                      Auto refreshing every 3 seconds.
+                    </div>
                   </div>
-                  <div className={styles.overlayTitle}>Processing</div>
-                  <div className={styles.overlayText}>
-                    This can take a moment. Try refreshing.
-                  </div>
-                  <div className={styles.actions}>
-                    <a href={`/watch/${id}`} className={styles.actionBtn}>
-                      Refresh
-                    </a>
-                  </div>
-                </div>
+                </>
               )}
             </div>
 

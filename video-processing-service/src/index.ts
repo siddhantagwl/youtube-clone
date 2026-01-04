@@ -146,7 +146,8 @@ app.get("/", (req, res) => {
   res.status(200).send("hello from video processing service ...");
 });
 
-const PORT = process.env.PORT || 3000;
-app.listen(PORT, () => {
-  console.log(`Video Processing Service Server is running on port ${PORT} ...`);
+const port = Number(process.env.PORT ?? "8080");
+
+app.listen(port, "0.0.0.0", () => {
+  console.log(`Video Processing Service Server is running on port ${port} ...`);
 });

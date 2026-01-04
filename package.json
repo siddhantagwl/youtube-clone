@@ -11,5 +11,8 @@
   },
   "engines": {
     "node": "20"
+  },
+  "scripts": {
+    "check:workspace": "npm ls @yt/shared && echo \"Workspace OK\""
   }
 }

@@ -14,5 +14,8 @@
   },
   "scripts": {
     "check:workspace": "npm ls @yt/shared && echo \"Workspace OK\""
+  },
+  "devDependencies": {
+    "firebase-tools": "^15.1.0"
   }
 }

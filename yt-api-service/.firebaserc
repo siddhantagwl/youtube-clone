@@ -1,5 +1,8 @@
 {
   "projects": {
-    "default": "yt-clone-8285c"
-  }
+    "default": "yt-clone-8285c",
+    "prod": "yt-clone-8285c"
+  },
+  "targets": {},
+  "etags": {}
 }

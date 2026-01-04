@@ -53,11 +53,11 @@ export default async function WatchPage(
             </div>
 
             <div className={styles.playerShell}>
-              {video.status === "processed" && video.filename ? (
+              {video.status === "processed" && (video.processedFilename || video.filename) ? (
                 <video
                   controls
                   className={styles.player}
-                  src={`${videoPrefix}${video.filename}`}
+                  src={`${videoPrefix}${video.processedFilename || video.filename}`}
                 />
               ) : video.status === "failed" ? (
                 <div className={`${styles.playerOverlay} ${styles.failedOverlay}`}>

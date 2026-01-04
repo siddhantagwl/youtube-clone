@@ -1,24 +1,22 @@
+// yt-web-client/app/firebase/functions.ts
+// this file is used to call firebase cloud functions from the web client
+// using the firebase/functions sdk for callable functions
+// separate deployment on the yt-api-service repo
+
 import { httpsCallable } from "firebase/functions";
-import { Timestamp } from "firebase/firestore";
 import { functions } from "./firebase";
 
 const generateUploadUrl = httpsCallable(functions, "generateUploadUrl");
 const getVideosFunction = httpsCallable(functions, "getVideos");
 const getVideoByIdFunction = httpsCallable(functions, "getVideoById");
+import type {Video} from "@yt/shared"
 
-export interface Video {
-  id?: string;
-  uid?: string;
-  filename?: string;
-  status?: "processing" | "processed" | "failed";
-  error?: string
-  title?: string;
-  description?: string;
-  createdAt?: Timestamp;
-}
 interface UploadUrlResponse {
   url: string;
-  fileName: string;
+  videoId: string;
+  rawFilename: string;
+  // Backward compatibility
+  fileName?: string;
 }
 
 export async function uploadVideo(file: File) {
@@ -37,7 +35,9 @@ export async function uploadVideo(file: File) {
     },
   });
 
-  return uploadData.fileName;
+  // we can now return the videoId to the client so we redirect to the watch page of this videoID
+  // even before processing is complete
+  return uploadData.videoId;
 }
 
 export async function getVideos(): Promise<Video[]> {

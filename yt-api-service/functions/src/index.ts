@@ -2,6 +2,8 @@ import * as functions from "firebase-functions/v1";
 import {initializeApp} from "firebase-admin/app";
 import * as logger from "firebase-functions/logger";
 import {Firestore} from "firebase-admin/firestore";
+import {FieldValue} from "firebase-admin/firestore";
+import type {Video} from "@yt/shared";
 // import {auth} from "firebase-functions/v1";
 // import {onCall} from "firebase-functions/v2/https";
 // import {beforeUserCreated} from "firebase-functions/v2/identity";
@@ -15,18 +17,7 @@ const dbFirestore = new Firestore();
 
 const storage = new Storage(); // Initialize Google Cloud Storage client
 const rawVideoBucketName = "yt-clone-raw-uploads"; // have to be globally unique
-
 const videoCollectionId = "videos";
-export interface Video {
-  id?: string;
-  uid?: string;
-  filename?: string;
-  status?: "processing" | "processed" | "failed";
-  error?: string
-  title?: string;
-  description?: string;
-  createdAt?: FirebaseFirestore.Timestamp;
-}
 
 // gen 1 function
 export const createUser = functions.auth.user().onCreate(async (user) => {
@@ -51,6 +42,11 @@ export const createUser = functions.auth.user().onCreate(async (user) => {
 
 // gen 2 function
 export const generateUploadUrl = onCall({maxInstances: 1}, async (request) => {
+  // when user clicks on UI to upload a video, this function is called
+  // creates a signed url for uploading the video to GCS directly and returns
+  // the signed url to the client with status 'uploading' in firestore
+  // client can then upload the video directly to GCS using the signed url
+
   // check if user is authenticated
   if (!request.auth) {
     throw new functions.https.HttpsError("unauthenticated",
@@ -63,15 +59,33 @@ export const generateUploadUrl = onCall({maxInstances: 1}, async (request) => {
 
   // get a v4 signed url for uploading file
   // generate a unique filename server side
-  const fileName = `${auth.uid}-${Date.now()}.${data.fileExtension}`;
-  const file = bucket.file(fileName);
+  const videoId = `${auth.uid}-${Date.now()}`;
+  const rawFilename = `${videoId}.${data.fileExtension}`;
+
+  const file = bucket.file(rawFilename);
+
   const [url] = await file.getSignedUrl({
     version: "v4",
     action: "write",
     expires: Date.now() + 15 * 60 * 1000, // 15 minutes
   });
 
-  return {url, fileName};
+  // Create metadata doc immediately so UI can link to /watch/:id right away
+  const videoDoc: Video = {
+    id: videoId,
+    uid: auth.uid,
+    rawFilename,
+    status: "uploading",
+    createdAt: FieldValue.serverTimestamp() as unknown,
+  };
+
+  await dbFirestore
+    .collection(videoCollectionId)
+    .doc(videoId)
+    .set(videoDoc, {merge: true});
+
+  // Keep legacy fileName field for backward compatibility in the client
+  return {url, videoId, rawFilename, fileName: rawFilename};
 });
 
 

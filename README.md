@@ -26,15 +26,12 @@ The system is:
 
 ## Tech Stack
 
-- TypeScript
-- Node.js + Express
-- FFmpeg
-- Docker
-- Google Cloud Run
-- Google Cloud Storage
-- Google Cloud Pub/Sub
-- Firebase Firestore
-- Firebase Authentication (web app)
+- Backend: Node.js + Express, FFmpeg for video processing
+- Frontend: Next.js + TypeScript
+- Cloud: Google Cloud Run, Storage, Pub/Sub
+- Database: Firebase Firestore
+- Auth: Firebase Authentication
+- Containerization: Docker
 
 ## Video Processing Flow
 

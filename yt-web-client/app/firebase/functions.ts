@@ -5,26 +5,32 @@
 
 import { httpsCallable } from "firebase/functions";
 import { functions } from "./firebase";
+import type {Video} from "@yt/shared"
+
 
 const generateUploadUrl = httpsCallable(functions, "generateUploadUrl");
 const getVideosFunction = httpsCallable(functions, "getVideos");
 const getVideoByIdFunction = httpsCallable(functions, "getVideoById");
-import type {Video} from "@yt/shared"
 
 interface UploadUrlResponse {
   url: string;
   videoId: string;
   rawFilename: string;
   // Backward compatibility
-  fileName?: string;
+  fileName: string; // <uid>-<timestamp>.<ext>
 }
 
-export async function uploadVideo(file: File) {
+export async function uploadVideo(file: File): Promise<string> {
+  // debugger;
   const response = await generateUploadUrl({
     fileExtension: file.name.split(".").pop(),
   });
 
   const uploadData = response.data as UploadUrlResponse;
+
+  if (!uploadData?.url || !uploadData?.fileName) {
+    throw new Error("generateUploadUrl did not return url/fileName");
+  }
 
   // upload the file now via the signed url
   await fetch(uploadData.url, {
@@ -37,7 +43,13 @@ export async function uploadVideo(file: File) {
 
   // we can now return the videoId to the client so we redirect to the watch page of this videoID
   // even before processing is complete
-  return uploadData.videoId;
+
+  // fileName format: <videoId>.<ext> where videoId is <uid>-<timestamp>
+  const lastDot = uploadData.fileName.lastIndexOf(".");
+  const videoId =
+    lastDot > 0 ? uploadData.fileName.substring(0, lastDot) : uploadData.fileName;
+
+  return videoId;
 }
 
 export async function getVideos(): Promise<Video[]> {

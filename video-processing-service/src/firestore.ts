@@ -1,6 +1,7 @@
 import { credential } from "firebase-admin";
 import { initializeApp } from "firebase-admin/app";
 import { Firestore } from "firebase-admin/firestore";
+import type { Video } from "@yt/shared";
 
 initializeApp({credential: credential.applicationDefault()});
 
@@ -17,22 +18,13 @@ const firestore = new Firestore();
 
 const videoCollectionId = 'videos';
 
-// optional fields
-export interface Video {
-  id?: string,
-  uid?: string,
-  filename?: string,
-  status?: 'processing' | 'processed' | 'failed',
-  error?: string
-  title?: string,
-  description?: string,
-  createdAt?: FirebaseFirestore.Timestamp;
-}
-
 // fetch video metadata from Firestore
-async function getVideo(videoId: string): Promise<Video> {
+async function getVideo(videoId: string): Promise<Video | null> {
   const snapshot = await firestore.collection(videoCollectionId).doc(videoId).get(); // returns a snapshot of document
-  return (snapshot.data() as Video) ?? {};
+  if (!snapshot.exists) {
+    return null;
+  }
+  return snapshot.data() as Video;
 }
 
 // set video metadata in Firestore
@@ -43,8 +35,20 @@ export function setVideo(videoId: string, video: Video) {
     .set(video, { merge: true }) // if there is a video already, merge the new fields, doesnt delete old data
 }
 
+export async function markProcessing(videoId: string) {
+  return setVideo(videoId, { status: "processing" });
+}
+
+
 // check if video is new (i.e., has no status field)
 export async function isVideoNew(videoId: string) {
+  //returns true if status is missing or uploading (web client marks as uploading initially)
   const video = await getVideo(videoId);
-  return video?.status === undefined;
+  // eligible if missong doc or status is uploading
+
+  // this step is important else pub sub will keep retrying on 5xx errors
+  // so now processing can recreate the doc if missing or update existing doc
+  // retries stop early.
+  if (!video) return true;
+  return video.status === "uploading";
 }

@@ -15,7 +15,7 @@ if [[ "$ARCH" == "arm64" ]]; then
 fi
 
 echo "Building image: $IMAGE"
-docker build $PLATFORM_ARG -t "$IMAGE" .
+docker build $PLATFORM_ARG -f video-processing-service/Dockerfile -t "$IMAGE" .
 
 echo "Pushing image: $IMAGE"
 docker push "$IMAGE"

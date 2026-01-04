@@ -12,21 +12,32 @@ FROM node:18
 # This is where all subsequent commands will be run
 WORKDIR /app
 
-# copy package.json and package-lock.json to the working directory
-COPY package*.json ./
+# Copy workspace root package files
+COPY package.json package-lock.json ./
 
-# install dependencies like ffmpeg and other Node.js packages
+# Copy shared package
+COPY packages/shared ./packages/shared
+
+# Copy service package.json
+COPY video-processing-service/package.json video-processing-service/package-lock.json ./video-processing-service/
+
+# Install system dependencies
 RUN apt-get update && apt-get install -y ffmpeg
 
-# install Node.js dependencies
+# install workspace dependencies
 RUN npm install
 
-# copy the rest of the application files (source code) to the working directory
-COPY . .
+# Copy the rest of the service source
+COPY video-processing-service ./video-processing-service
+
+# Move into service directory
+WORKDIR /app/video-processing-service
 
 # expose the port the app runs on.
 # coz the port might not be necessarily availble to us outside the container ubless we explicitly expose it
-EXPOSE 3000
+# EXPOSE 3000
+
+EXPOSE 8080
 
 # start the application just like we did locally
 CMD ["npm", "start"]

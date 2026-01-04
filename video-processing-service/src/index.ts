@@ -7,7 +7,7 @@ import {
   deleteRawVideo,
   deleteProcessedVideo,
 } from "./storage";
-import { isVideoNew, setVideo } from "./firestore";
+import { isVideoNew, setVideo, markProcessing } from "./firestore";
 
 setupDirectories();
 
@@ -50,8 +50,12 @@ app.post("/process-video", async (req, res) => {
   const outputFilename = `processed-${inputFilename}`;
 
   // dont process until its a new video
-  const videoId = inputFilename.split(".")[0]; // extract uid from filename (<uid>-<timestamp>)
-  const uid = videoId.split("-")[0];
+  // Parse identifiers from the raw object name.
+  // raw filename format: <videoId>.<ext>
+  // videoId format: <uid>-<timestamp>
+  const videoId = inputFilename.substring(0, inputFilename.lastIndexOf(".")) || inputFilename;
+  const lastDash = videoId.lastIndexOf("-");
+  const uid = lastDash > 0 ? videoId.substring(0, lastDash) : videoId;
 
   console.log(`CHECKING_IF_VIDEO_IS_NEW=${JSON.stringify({ videoId, uid })}`);
 
@@ -64,11 +68,15 @@ app.post("/process-video", async (req, res) => {
 
   console.log(`PROCESSING_VIDEO=${JSON.stringify({ videoId, inputFilename })}`);
 
+  // Ensure first the doc exists and we store the raw filename as part of the metadata.
   await setVideo(videoId, {
     id: videoId,
     uid: uid,
-    status: "processing"
+    rawFilename: inputFilename,
   });
+
+  // and then mark as processing (idempotent update)
+  await markProcessing(videoId);
 
   // download the raw video from the cloud storage
   try {
@@ -100,6 +108,8 @@ app.post("/process-video", async (req, res) => {
     //  earlier because we already have the document with that ID and merge "true" option will just update the fields
     await setVideo(videoId, {
       status: "processed",
+      processedFilename: outputFilename,
+      // todo: this is for backward compatibility, refactor this later
       filename: outputFilename,
     });
 

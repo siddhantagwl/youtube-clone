@@ -21,7 +21,8 @@ export interface Video {
   id?: string;
   uid?: string;
   filename?: string;
-  status?: "processing" | "processed";
+  status?: "processing" | "processed" | "failed";
+  error?: string
   title?: string;
   description?: string;
   createdAt?: FirebaseFirestore.Timestamp;

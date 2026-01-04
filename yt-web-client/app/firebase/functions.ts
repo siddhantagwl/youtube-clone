@@ -9,19 +9,26 @@ export interface Video {
   id?: string;
   uid?: string;
   filename?: string;
-  status?: "processing" | "processed";
+  status?: "processing" | "processed" | "failed";
+  error?: string
   title?: string;
   description?: string;
   createdAt?: Timestamp;
 }
+interface UploadUrlResponse {
+  url: string;
+  fileName: string;
+}
 
 export async function uploadVideo(file: File) {
-  const response: any = await generateUploadUrl({
+  const response = await generateUploadUrl({
     fileExtension: file.name.split(".").pop(),
   });
 
+  const uploadData = response.data as UploadUrlResponse;
+
   // upload the file now via the signed url
-  await fetch(response?.data?.url, {
+  await fetch(uploadData.url, {
     method: "PUT",
     body: file,
     headers: {

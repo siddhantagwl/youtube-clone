@@ -5,7 +5,7 @@ import { getVideos } from "./firebase/functions";
 import styles from "./page.module.css";
 
 export default async function Home() {
-  const videos = await getVideos();
+  const videos = await getVideos(); // by default, nextjs caches the server side component and this will show the same set of videos
   console.log("Videos on home page:", videos);
 
   return (
@@ -21,3 +21,9 @@ export default async function Home() {
     </main>
   );
 }
+
+// as per docs:
+// on this entire page , disbale caching and make it revalidate
+// every 30 seconds and render page in 30 sec
+// and this way. we can reduce the load on getVideos function
+export const revalidate = 30;

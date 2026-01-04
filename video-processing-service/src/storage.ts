@@ -2,6 +2,7 @@
 import { Storage } from '@google-cloud/storage';
 import ffmpeg from 'fluent-ffmpeg';
 import fs from 'fs';
+import fsPromises from 'fs/promises';
 import path from 'path';
 
 
@@ -22,21 +23,55 @@ export function setupDirectories() {
     ensureDirectoriesExist(localProcessedVideoDir);
 }
 
-export function convertVideo(rawVideoName:string, processedVideoName:string): Promise<string> {
+export async function convertVideo(rawVideoName:string, processedVideoName:string): Promise<string> {
     // return a promise that resolves when the video processing is complete so that the server can respond to the client
+
+    const inputPath = `${localRawVideoDir}/${rawVideoName}`;
+    const outputPath = `${localProcessedVideoDir}/${processedVideoName}`;
+
+    // quick sanity: confirm file exists and is not empty
+    const stat = await fsPromises.stat(inputPath);
+    console.log(
+        `FFMPEG_INPUT=${JSON.stringify({
+        inputPath,
+        bytes: stat.size,
+        rawVideoName,
+        processedVideoName,
+        })}`
+    );
+
     return new Promise((resolve, reject) => {
+        const stderrLines: string[] = [];
+
         // create a new ffmpeg command to process the video
-        ffmpeg(`${localRawVideoDir}/${rawVideoName}`)
-        .outputOptions('-vf', 'scale=-1:360') // resize to 360p
+        ffmpeg(inputPath)
+        .outputOptions('-vf', 'scale=-2:360') // resize to 360p
+        // .on("start", (cmdLine) => {
+        //     console.log(`FFMPEG_CMD=${cmdLine}`);
+        // })
+        // .on("progress", (p) => {
+        //     // p can include percent, timemark, frames depending on ffmpeg
+        //     console.log(`FFMPEG_PROGRESS=${JSON.stringify(p)}`);
+        // })
+        .on("stderr", (line) => {
+            // keep last 50 lines to avoid huge logs
+            stderrLines.push(line);
+            if (stderrLines.length > 50) stderrLines.shift();
+        })
         .on("end", () => {
-            console.log("Video processing finished successfully!!");
+            console.log("FFMPEG_END=success");
             resolve(`Video processed and saved as ${processedVideoName}`);
         })
         .on("error", (err) => {
-            console.error("Error processing video:", err.message);
+            console.error(
+            `FFMPEG_ERROR=${JSON.stringify({
+                message: err?.message,
+                lastStderr: stderrLines,
+            })}`
+            );
             reject(err);
         })
-        .save(`${localProcessedVideoDir}/${processedVideoName}`); // save the processed video to the local directory
+        .save(outputPath); // save the processed video to the local directory
     });
 }
 
@@ -67,12 +102,12 @@ export async function uploadProcessedVideo(fileName: string): Promise<void> {
 
 export function deleteRawVideo(fileName: string) {
     const filePath = `${localRawVideoDir}/${fileName}`;
-    deleteLocalFiles(filePath);
+    return deleteLocalFiles(filePath);
 }
 
 export function deleteProcessedVideo(fileName: string) {
     const filePath = `${localProcessedVideoDir}/${fileName}`;
-    deleteLocalFiles(filePath);
+    return deleteLocalFiles(filePath);
 }
 
 function deleteLocalFiles(filePath: string): Promise<void> {

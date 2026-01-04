@@ -4,7 +4,6 @@
   "workspaces": [
     "packages/*",
     "yt-web-client",
-    "yt-api-service/functions",
     "video-processing-service"
   ],
   "overrides": {

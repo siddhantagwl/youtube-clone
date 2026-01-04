@@ -1,8 +1,10 @@
+// to deploy: cd yt-api-service && firebase deploy --only functions
+// or a single function: firebase deploy --only functions:<functionName>
+
 import * as functions from "firebase-functions/v1";
 import {initializeApp} from "firebase-admin/app";
 import * as logger from "firebase-functions/logger";
-import {Firestore} from "firebase-admin/firestore";
-import {FieldValue} from "firebase-admin/firestore";
+import {Firestore, FieldValue} from "firebase-admin/firestore";
 import type {Video} from "@yt/shared";
 // import {auth} from "firebase-functions/v1";
 // import {onCall} from "firebase-functions/v2/https";

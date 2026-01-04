@@ -4,40 +4,46 @@
 # The Dockerfile below is designed to set up a Node.js environment for a video processing service
 # It includes steps to install dependencies, copy application files, and set up the environment for running the service.
 
+# Video Processing Service Dockerfile
 
-# use an official Node.js image as a base
-FROM node:18
+# Use Node 20 (align with Cloud runtimes and our package.json engines)
+FROM node:20-bookworm-slim
+
+# Install ffmpeg for transcoding
+RUN apt-get update \
+  && apt-get install -y --no-install-recommends ffmpeg \
+  && rm -rf /var/lib/apt/lists/*
 
 # set the working directory in the container to /app
 # This is where all subsequent commands will be run
 WORKDIR /app
 
-# Copy workspace root package files
-COPY package.json package-lock.json ./
-
-# Copy shared package
-COPY packages/shared ./packages/shared
-
-# Copy service package.json
+# Copy only what is needed for dependency resolution and build caching
 COPY video-processing-service/package.json video-processing-service/package-lock.json ./video-processing-service/
 
-# Install system dependencies
-RUN apt-get update && apt-get install -y ffmpeg
+# Copy shared package (single source of truth)
+COPY packages/shared ./packages/shared
 
-# install workspace dependencies
-RUN npm install
+# Vendor shared into the service so `file:./local_packages/shared` works during Docker build
+RUN mkdir -p ./video-processing-service/local_packages/shared \
+  && cp -R ./packages/shared/* ./video-processing-service/local_packages/shared/
+
+# Install dependencies inside the service directory
+WORKDIR /app/video-processing-service
+RUN npm ci
 
 # Copy the rest of the service source
-COPY video-processing-service ./video-processing-service
+COPY video-processing-service ./
 
-# Move into service directory
-WORKDIR /app/video-processing-service
+# Build TypeScript to dist/
+RUN npm run build
 
-# expose the port the app runs on.
-# coz the port might not be necessarily availble to us outside the container ubless we explicitly expose it
-# EXPOSE 3000
+# Remove devDependencies for a smaller runtime image
+RUN npm prune --omit=dev
 
+# Cloud Run provides PORT=8080; service must listen on it
 EXPOSE 8080
 
 # start the application just like we did locally
-CMD ["npm", "start"]
+# Run compiled server
+CMD ["node", "dist/index.js"]

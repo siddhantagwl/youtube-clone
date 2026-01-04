@@ -9,7 +9,8 @@
     "start": "npm run shell",
     "sync:shared": "rm -rf local_packages/shared && mkdir -p local_packages/shared && cp -R ../../packages/shared/* local_packages/shared/",
     "deploy": "npm run sync:shared && npm run build && firebase deploy --only functions",
-    "logs": "firebase functions:log"
+    "logs": "firebase functions:log",
+    "postinstall": "node -e \"console.log('Do not run npm install here. Run npm install at repo root.')\""
   },
   "engines": {
     "node": "20"

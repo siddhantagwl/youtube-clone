@@ -12,3 +12,7 @@ dist
 out
 coverage
 local_packages/
+
+**/node_modules
+package-lock.json
+!package-lock.json

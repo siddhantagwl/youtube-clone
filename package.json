@@ -8,5 +8,8 @@
   ],
   "overrides": {
     "js-yaml": "4.1.1"
+  },
+  "engines": {
+    "node": "20"
   }
 }

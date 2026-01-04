@@ -8,7 +8,8 @@
     "start": "ts-node src/index.ts",
     "sync:shared": "rm -rf local_packages/shared && mkdir -p local_packages/shared && cp -R ../packages/shared/* local_packages/shared/",
     "build": "tsc",
-    "serve": "node dist/index.js"
+    "serve": "node dist/index.js",
+    "postinstall": "node -e \"console.log('Do not run npm install here. Run npm install at repo root.')\""
   },
   "engines": {
     "node": "20"

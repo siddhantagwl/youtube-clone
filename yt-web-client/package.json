@@ -6,7 +6,8 @@
     "dev": "next dev",
     "build": "next build",
     "start": "next start",
-    "lint": "next lint"
+    "lint": "next lint",
+    "postinstall": "node -e \"console.log('Do not run npm install here. Run npm install at repo root.')\""
   },
   "dependencies": {
     "firebase": "^12.1.0",

@@ -83,5 +83,27 @@ export const getVideos = onCall({maxInstances: 1}, async () => {
     .limit(10)
     .get();
 
-  return snapshot.docs.map((doc) => doc.data());
+  return snapshot.docs.map((doc) => ({
+    id: doc.id,
+    ...doc.data(),
+  }));
+});
+
+
+export const getVideoById = onCall({maxInstances: 1}, async (request) => {
+  const {id} = request.data as { id?: string };
+
+  if (!id) {
+    throw new functions.https.HttpsError("invalid-argument",
+      "videoId is required");
+  }
+
+  const doc = await dbFirestore.collection(videoCollectionId).doc(id).get();
+
+  if (!doc.exists) {
+    throw new functions.https.HttpsError("not-found",
+      `Video with id ${id} not found`);
+  }
+
+  return {id: doc.id, ...doc.data()};
 });

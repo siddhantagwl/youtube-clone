@@ -3,7 +3,7 @@
 
 import { Fragment } from "react";
 import styles from "./sign-in.module.css";
-import { signInWithGoogle, signOut  } from "../firebase/firebase";
+import { signInWithGoogle, signOut  } from "../../app/firebase/firebase";
 import { User } from "firebase/auth";
 
 interface SignInProps {

@@ -6,17 +6,20 @@ import styles from "./page.module.css";
 
 export default async function Home() {
   const videos = await getVideos(); // by default, nextjs caches the server side component and this will show the same set of videos
-  console.log("Videos on home page:", videos);
+  // console.log("Videos on home page:", videos);
 
   return (
     <main>
       {
-        videos.map((video) => (
-          <Link key={video.id || video.filename} href={`/watch?v=${video.filename}`}>
-            <Image src={"/thumbnail.png"} alt="thumbnail" width={200}
-             height={100} className={styles.thumbnail} />
-          </Link>
-        ))
+        videos.map((video) => {
+          if (!video.id) return null;
+          return (
+            <Link key={video.id} href={`/watch/${video.id}`}>
+              <Image src={"/thumbnail.png"} alt="thumbnail" width={200}
+               height={100} className={styles.thumbnail} />
+            </Link>
+          );
+        })
       }
     </main>
   );

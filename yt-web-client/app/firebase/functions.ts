@@ -4,6 +4,7 @@ import { functions } from "./firebase";
 
 const generateUploadUrl = httpsCallable(functions, "generateUploadUrl");
 const getVideosFunction = httpsCallable(functions, "getVideos");
+const getVideoByIdFunction = httpsCallable(functions, "getVideoById");
 
 export interface Video {
   id?: string;
@@ -35,9 +36,16 @@ export async function uploadVideo(file: File) {
       "Content-Type": file.type, // impt to specify the content type
     },
   });
+
+  return uploadData.fileName;
 }
 
 export async function getVideos(): Promise<Video[]> {
   const resp = await getVideosFunction();
   return resp.data as Video[];
+}
+
+export async function getVideoById(id: string): Promise<Video> {
+  const resp = await getVideoByIdFunction({ id });
+  return resp.data as Video;
 }

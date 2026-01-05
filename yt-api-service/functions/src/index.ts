@@ -96,6 +96,7 @@ export const getVideos = onCall({maxInstances: 1}, async () => {
   // watch them.
   // return first 10 videso for simplicity
   const snapshot = await dbFirestore.collection(videoCollectionId)
+    .orderBy("createdAt", "desc") // newest first
     .limit(10)
     .get();
 

@@ -68,7 +68,7 @@ export default async function Home() {
   const videos = await getVideos(); // by default, nextjs caches the server side component and this will show the same set of videos
   // console.log("Videos on home page:", videos);
 
-  console.log(videos.map(v => v.id));
+  // console.log(videos.map(v => v.id));
   // console.log(videos.map(v => v.createdAt));
 
   return (

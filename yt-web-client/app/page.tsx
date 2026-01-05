@@ -35,3 +35,4 @@ export default async function Home() {
 // every 30 seconds and render page in 30 sec
 // and this way. we can reduce the load on getVideos function
 export const revalidate = 30;
+export const dynamic = "force-dynamic"; // tells Next: always render on request, do not serve ISR snapshots.

@@ -1,0 +1,102 @@
+.card {
+  text-decoration: none;
+  color: inherit;
+  display: block;
+  border-radius: 14px;
+  transition: transform 120ms ease, background 120ms ease;
+}
+
+.card:hover {
+  transform: translateY(-2px);
+}
+
+.grid {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.compact {
+  display: grid;
+  grid-template-columns: 160px 1fr;
+  gap: 12px;
+  align-items: start;
+}
+
+.compact:hover {
+  background: rgba(0, 0, 0, 0.04);
+}
+
+.thumbWrap {
+  position: relative;
+  border-radius: 14px;
+  overflow: hidden;
+  aspect-ratio: 16 / 9;
+  background: rgba(0, 0, 0, 0.06);
+  transition: box-shadow 120ms ease;
+}
+
+.card:hover .thumbWrap {
+  box-shadow: 0 10px 22px rgba(0, 0, 0, 0.18);
+}
+
+.thumbImg {
+  object-fit: cover;
+}
+
+.meta {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.title {
+  font-size: 18px;
+  font-weight: 700;
+  line-height: 1.2;
+
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+.sub {
+  font-size: 14px;
+  opacity: 0.75;
+}
+
+.compact .badge {
+  padding: 4px 8px;
+  font-size: 11px;
+  right: 8px;
+  bottom: 8px;
+  opacity: 0.9;
+}
+
+.badge {
+  position: absolute;
+  right: 10px;
+  bottom: 10px;
+
+  padding: 6px 10px;
+  border-radius: 999px;
+  font-size: 13px;
+  font-weight: 700;
+}
+
+.badgeReady {
+  background: #2e7d32;
+  color: white;
+}
+
+.badgeProcessing {
+  background: #6b7280;
+  color: white;
+}
+
+.badgeFailed {
+  background: #b91c1c;
+  color: white;
+}

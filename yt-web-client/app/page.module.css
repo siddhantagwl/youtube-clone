@@ -1,122 +1,42 @@
 .page {
-  padding: 24px 16px;
+  padding: 20px 0 32px;
 }
 
 .container {
-  max-width: 1400px;
+  max-width: 1120px;
   margin: 0 auto;
+  padding: 0 16px;
 }
 
+/*
+  Responsive grid without hard breakpoints.
+  Cards stay compact and fill available space.
+*/
 .grid {
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
-  gap: 24px;
-
-  grid-auto-flow: row;
+  grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+  gap: 18px;
+  align-items: start;
 }
 
-@media (min-width: 640px) {
+/* @media (min-width: 1280px) {
   .grid {
-    grid-template-columns: repeat(2, minmax(0, 1fr));
-    gap: 18px;
+    grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+    gap: 16px;
   }
-}
+} */
 
-@media (min-width: 1024px) {
+@media (max-width: 640px) {
+  .page {
+    padding: 16px 0 24px;
+  }
+
+  .container {
+    padding: 0 14px;
+  }
+
   .grid {
-    grid-template-columns: repeat(3, minmax(0, 1fr));
-    gap: 20px;
+    grid-template-columns: 1fr;
+    gap: 14px;
   }
-}
-
-@media (min-width: 1400px) {
-  .grid {
-    grid-template-columns: repeat(4, minmax(0, 1fr));
-    gap: 22px;
-  }
-}
-
-.card {
-  display: block;
-  text-decoration: none;
-  color: inherit;
-}
-
-.thumbWrap {
-  position: relative;
-  width: 100%;
-  aspect-ratio: 16 / 9;
-  border-radius: 12px;
-  overflow: hidden;
-  background: rgba(0, 0, 0, 0.06);
-}
-
-.thumbnail {
-  object-fit: cover;
-  z-index: 1;
-}
-
-.meta {
-  padding-top: 10px;
-}
-
-.title {
-  font-size: 14px;
-  font-weight: 600;
-  line-height: 1.25;
-  margin-bottom: 4px;
-  display: -webkit-box;
-  -webkit-line-clamp: 2;
-  -webkit-box-orient: vertical;
-  overflow: hidden;
-}
-
-.sub {
-  font-size: 12px;
-  opacity: 0.75;
-}
-
-.card:hover .thumbWrap {
-  transform: translateY(-2px);
-}
-
-.thumbWrap {
-  transition: transform 120ms ease, box-shadow 120ms ease;
-}
-
-.card:hover .thumbWrap {
-  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.15);
-}
-
-.badge {
-  position: absolute;
-  right: 8px;
-  bottom: 8px;
-  z-index: 2;
-  padding: 4px 8px;
-  font-size: 12px;
-  line-height: 1;
-  border-radius: 999px;
-  background: rgba(0, 0, 0, 0.75);
-  color: white;
-}
-
-.ready {
-  background: rgba(20, 168, 4, 0.9); /* green */
-}
-
-.failed {
-  background: rgba(239, 68, 68, 0.9); /* red */
-  font-weight: 600;
-}
-
-.processing {
-  background: rgba(59, 130, 246, 0.9);
-  animation: pulse 1.5s ease-in-out infinite;
-}
-
-@keyframes pulse {
-  0% { opacity: 0.85; }
-  50% { opacity: 1; }
-  100% { opacity: 0.85; }
 }

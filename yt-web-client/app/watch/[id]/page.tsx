@@ -1,7 +1,6 @@
 import { getVideoById, getVideos } from "@/app/firebase/functions";
 import styles from "./page.module.css";
-import Link from "next/link";
-import Image from "next/image";
+import VideoCard from "@/components/video-card/VideoCard";
 
 const videoPrefix = "https://storage.googleapis.com/sidd-yt-processed-videos/";
 
@@ -21,7 +20,7 @@ export default async function WatchPage(
 
   const allVideos = await getVideos();
   const suggestions = allVideos
-    .filter((v) => v.id && v.id !== id)
+    .filter((v) => v.id && v.id !== id) // filter out hte current video
     .slice(0, 8); // only 8 suggestions
 
   return (
@@ -99,27 +98,13 @@ export default async function WatchPage(
             <div className={styles.sideTitle}>Up next</div>
 
             <div className={styles.sideList}>
-              {suggestions.length === 0 ? (
+              { suggestions.length === 0 ? (
                 <div className={styles.message}>No suggestions yet</div>
               ) : (
-                suggestions.map((v) => (
-                  <Link key={v.id} href={`/watch/${v.id}`} className={styles.sideItem}>
-                    <div className={styles.sideThumb}>
-                      <Image
-                        src={"/thumbnail.png"}
-                        alt="thumbnail"
-                        fill
-                        className={styles.sideThumbImg}
-                        sizes="160px"
-                      />
-                    </div>
-                    <div className={styles.sideMeta}>
-                      <div className={styles.sideItemTitle}>{v.title || "Untitled"}</div>
-                      {/* <div className={styles.sideItemSub}>{v.uid || "Unknown"}</div> */}
-                    </div>
-                  </Link>
-                ))
-              )}
+                suggestions.map((v) =>  v.id ? (
+                  <VideoCard key={v.id} video={v} href={`/watch/${v.id}`} variant="compact" />
+                ) : null
+                ))}
             </div>
           </aside>
         </div>

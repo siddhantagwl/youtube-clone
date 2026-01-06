@@ -7,6 +7,7 @@ import SignIn from "./sign-in";
 import { onAuthStateChangedHelper } from "../../app/firebase/firebase";
 import { useEffect, useState } from "react";
 import { User } from "firebase/auth";
+import { signInWithGoogle } from "@/app/firebase/firebase";
 
 import Upload from "./upload";
 
@@ -14,6 +15,15 @@ export default function Navbar() {
 
   // inint user state
   const [user, setUser] = useState<User | null>(null);
+
+  const handleSignIn = async () => {
+  try {
+    await signInWithGoogle();
+  } catch (e: any) {
+    console.error("Sign in failed", { code: e?.code, message: e?.message });
+    alert("Sign in failed. Please try again.");
+  }
+};
 
   // hook
   useEffect(() => {
@@ -30,9 +40,7 @@ export default function Navbar() {
       <Link href="/">
           <Image src="/youtube-logo.svg" alt="YT Logo" width={90} height={20} />
       </Link>
-      {
-        user && <Upload />
-      }
+      <Upload user={user} onSignIn={handleSignIn} />
       <SignIn user={user} />
     </nav>
   );
